@@ -25,7 +25,7 @@ vector<double> Node::getStrategy(double realizationWeight) {
 }
 
 vector<double> Node::getAvgStrategy() const {
-    vector<double> avgStrategy = regretSum;
+    vector<double> avgStrategy = strategySum;
     double normalizingSum = 0.0;
     for (auto const &i : avgStrategy) normalizingSum += i;
     if (normalizingSum > 0) {

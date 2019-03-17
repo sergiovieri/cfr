@@ -85,7 +85,7 @@ private:
         for (int i = 0; i < numActions; ++i) {
             double regret = player ? currentUtil[i].second - nodeUtil.second : currentUtil[i].first - nodeUtil.first;
             node.regretSum[i] += regret * (player ? p0 : p1);
-            node.regretSum[i] = max(node.regretSum[i], 0.0);
+//            node.regretSum[i] = max(node.regretSum[i], 0.0);
         }
 //    cout << infoSet << " " << nodeUtil.first << " " << nodeUtil.second << '\n';
         return nodeUtil;
