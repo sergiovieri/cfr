@@ -38,7 +38,7 @@ public:
                 start = finish;
                 cout << "Iteration " << i << '\n';
                 cout << "Elapsed time: " << elapsed.count() * 1000.0 << "ms\n";
-                cout << "Average game value: " << util.first / iterations << ", " << util.second / iterations << '\n';
+                cout << "Average game value: " << util.first / (i + 1) << ", " << util.second / (i + 1) << '\n';
                 saveToFile("latest.txt");
             }
             if (i % 10000 == 0) saveToFile(to_string(i) + ".txt");
