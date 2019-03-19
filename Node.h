@@ -18,7 +18,7 @@ public:
 
     explicit Node(int numActions);
 
-    vector<double> getStrategy(double realizationWeight);
+    vector<double> getStrategy(double realizationWeight, uint32_t iteration);
 
     vector<double> getAvgStrategy() const;
 

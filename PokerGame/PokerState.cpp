@@ -46,10 +46,10 @@ PokerState PokerState::getNextState(uint8_t action) {
     } else {
         nextState.histories[currentRound] += 'r';
         if (player == 0) {
-            nextState.pot.first = static_cast<uint8_t>(nextState.pot.second + 10);
+            nextState.pot.first = static_cast<uint8_t>(nextState.pot.second + getRaiseAmount());
             nextState.playerRaises.first++;
         } else {
-            nextState.pot.second = static_cast<uint8_t>(nextState.pot.first + 10);
+            nextState.pot.second = static_cast<uint8_t>(nextState.pot.first + getRaiseAmount());
             nextState.playerRaises.second++;
         }
         nextState.numRaises++;
@@ -166,9 +166,15 @@ uint8_t PokerState::getWinProb(omp::CardRange card, uint64_t roundCard) {
     vector<omp::CardRange> cr = {std::move(card), omp::CardRange("random")};
     PokerState::eq.start(cr, roundCard);
     PokerState::eq.wait();
-    return static_cast<uint8_t>(floor(eq.getResults().equity[0] * 100));
+    return static_cast<uint8_t>(floor(eq.getResults().equity[0] * 20));
 }
 
 string &PokerState::getCurrentRoundHistory() {
     return histories[round];
+}
+
+uint8_t PokerState::getRaiseAmount() {
+    return 10;
+//    if (round < 2) return 20;
+//    else return 40;
 }

@@ -14,6 +14,7 @@ class CFR {
 public:
     pair<double, double> util;
     unordered_map<string, Node> nodeMap;
+    uint32_t currentIteration = 0;
 
     void saveToFile(const string &fileName) {
         ofstream file(fileName);
@@ -23,9 +24,10 @@ public:
         file.close();
     }
 
-    void train(int iterations) {
+    void train(uint32_t iterations) {
         auto start = std::chrono::high_resolution_clock::now();
-        for (int i = 0; i < iterations; ++i) {
+        for (uint32_t i = 0; i < iterations; ++i) {
+            currentIteration = i;
             T state = T();
             pair<double, double> currentUtil = CFR::cfr(state, 1.0, 1.0);
             util.first += currentUtil.first;
@@ -69,7 +71,7 @@ private:
 
         Node &node = CFR::nodeMap[infoSet];
 
-        auto strategy = node.getStrategy(player ? p1 : p0);
+        auto strategy = node.getStrategy(player ? p1 : p0, currentIteration);
         vector<pair<double, double>> currentUtil(static_cast<unsigned long>(numActions));
         pair<double, double> nodeUtil = {0.0, 0.0};
 

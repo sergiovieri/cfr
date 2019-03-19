@@ -59,6 +59,8 @@ public:
     pair<uint8_t, uint8_t> getWinProb(uint64_t roundCard);
 
     string &getCurrentRoundHistory();
+
+    uint8_t getRaiseAmount();
 };
 
 

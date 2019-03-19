@@ -6,7 +6,7 @@ Node::Node(int numActions) : numActions(numActions) {
     strategySum.resize(static_cast<unsigned long>(numActions));
 }
 
-vector<double> Node::getStrategy(double realizationWeight) {
+vector<double> Node::getStrategy(double realizationWeight, uint32_t iteration) {
     for (int i = 0; i < numActions; ++i) {
         strategy[i] = max(regretSum[i], 0.0);
     }
@@ -19,13 +19,13 @@ vector<double> Node::getStrategy(double realizationWeight) {
     }
 
     for (int i = 0; i < numActions; ++i) {
-        strategySum[i] += realizationWeight * strategy[i];
+        strategySum[i] += iteration * realizationWeight * strategy[i];
     }
     return strategy;
 }
 
 vector<double> Node::getAvgStrategy() const {
-    vector<double> avgStrategy = regretSum;
+    vector<double> avgStrategy = strategySum;
     double normalizingSum = 0.0;
     for (auto const &i : avgStrategy) normalizingSum += i;
     if (normalizingSum > 0) {
