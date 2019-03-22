@@ -88,7 +88,8 @@ private:
             DB regret = player ? currentUtil[i].second - nodeUtil.second : currentUtil[i].first -
                                                                            nodeUtil.first;
             node.regretSum[i] += regret * (player ? p0 : p1);
-            node.regretSum[i] = max(node.regretSum[i], (DB) 0.0);
+//            if (node.regretSum[i] < 0) node.regretSum[i] /= 2.0;
+//            node.regretSum[i] = max(node.regretSum[i], (DB) 0.0);
         }
 //        }
 //    cout << infoSet << " " << nodeUtil.first << " " << nodeUtil.second << '\n';
