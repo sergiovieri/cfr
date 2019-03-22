@@ -57,9 +57,38 @@ PokerState PokerState::getNextState(uint8_t action) {
     return nextState;
 }
 
+string toRank(int rank) {
+    if (rank < 8) return string(1, '2' + rank);
+    if (rank == 8) return "t";
+    if (rank == 9) return "j";
+    if (rank == 10) return "q";
+    if (rank == 11) return "k";
+    if (rank == 12) return "a";
+    assert(false);
+}
+
+string PokerState::getCardInfo() {
+    if (round == 0) {
+        omp::CardRange cards;
+        if (getCurrentPlayer() == 0) {
+            cards = holeCards;
+        } else {
+            cards = oppCards;
+        }
+        int card1 = cards.combinations()[0][0];
+        int card2 = cards.combinations()[0][1];
+        int rank1 = card1 / 4;
+        int rank2 = card2 / 4;
+        if (rank1 > rank2) swap(rank1, rank2);
+        string info = toRank(rank1) + toRank(rank2);
+        if (card1 % 4 != card2 % 4) info += "o";
+        return info;
+    }
+    return to_string(getCurrentPlayer() == 0 ? winProbs[round].first : winProbs[round].second);
+}
+
 string PokerState::getInfoSet() {
-    return to_string(round) + ": " +
-           to_string(getCurrentPlayer() == 0 ? winProbs[round].first : winProbs[round].second) +
+    return to_string(round) + ": " + getCardInfo() +
            histories[0] + ';' + histories[1] + ';' + histories[2] + ';' + histories[3];
 }
 
