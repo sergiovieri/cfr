@@ -1,6 +1,8 @@
 #ifndef CFR_POKERSTATE_H
 #define CFR_POKERSTATE_H
 
+#define DB long double
+
 #include <string>
 #include <vector>
 #include <random>
@@ -22,7 +24,7 @@ public:
 
     string getInfoSet();
 
-    pair<double, double> getTerminalValue();
+    pair<DB, DB> getTerminalValue();
 
     static mt19937 randomGenerator;
 
@@ -46,7 +48,7 @@ public:
     int8_t win;
 
     array<string, 4> histories;
-    pair<int8_t, int8_t> pot = {10, 20};
+    pair<int, int> pot = {10, 20};
     uint8_t currentPlayer = 0;
     uint8_t round = 0;
     pair<uint8_t, uint8_t> playerRaises = {0, 0};
@@ -60,7 +62,7 @@ public:
 
     string &getCurrentRoundHistory();
 
-    uint8_t getRaiseAmount();
+    int getRaiseAmount();
 };
 
 

@@ -6,13 +6,12 @@
 #include <iostream>
 #include <chrono>
 #include "Node.h"
-#include "KuhnGame/KuhnState.h"
 #include <fstream>
 
 template<typename T>
 class CFR {
 public:
-    pair<double, double> util;
+    pair<DB, DB> util;
     unordered_map<string, Node> nodeMap;
     uint32_t currentIteration = 0;
 
@@ -29,12 +28,12 @@ public:
         for (uint32_t i = 0; i < iterations; ++i) {
             currentIteration = i;
             T state = T();
-            pair<double, double> currentUtil = CFR::cfr(state, 1.0, 1.0);
+            pair<DB, DB> currentUtil = CFR::cfr(state, 1.0, 1.0);
             util.first += currentUtil.first;
             util.second += currentUtil.second;
             if (i % 1000 == 0) {
                 auto finish = std::chrono::high_resolution_clock::now();
-                std::chrono::duration<double> elapsed = finish - start;
+                std::chrono::duration<DB> elapsed = finish - start;
                 start = finish;
                 cout << "Iteration " << i << '\n';
                 cout << "Elapsed time: " << elapsed.count() * 1000.0 << "ms\n";
@@ -48,7 +47,7 @@ public:
         for (const auto &i : nodeMap) {
             cout << "\"" << i.first << "\": " << i.second.toString() << '\n';
         }
-        std::chrono::duration<double> elapsed = finish - start;
+        std::chrono::duration<DB> elapsed = finish - start;
         std::cout << "Elapsed time: " << elapsed.count() * 1000.0 << "ms\n";
     }
 
@@ -57,7 +56,7 @@ public:
     ~CFR() = default;
 
 private:
-    pair<double, double> cfr(T state, double p0, double p1) {
+    pair<DB, DB> cfr(T state, DB p0, DB p1) {
 //    cout << pState->getInfoSet() << " " << p0 << " " << p1 << '\n';
 
         int player = state.getCurrentPlayer();
@@ -72,8 +71,8 @@ private:
         Node &node = CFR::nodeMap[infoSet];
 
         auto strategy = node.getStrategy(player ? p1 : p0, currentIteration);
-        vector<pair<double, double>> currentUtil(static_cast<unsigned long>(numActions));
-        pair<double, double> nodeUtil = {0.0, 0.0};
+        vector<pair<DB, DB>> currentUtil(static_cast<unsigned long>(numActions));
+        pair<DB, DB> nodeUtil = {0.0, 0.0};
 
         for (int i = 0; i < numActions; ++i) {
             T nextState = state.getNextState(i);
@@ -84,11 +83,14 @@ private:
             nodeUtil.second += strategy[i] * currentUtil[i].second;
         }
 
+//        if (currentIteration % 2 == player) {
         for (int i = 0; i < numActions; ++i) {
-            double regret = player ? currentUtil[i].second - nodeUtil.second : currentUtil[i].first - nodeUtil.first;
+            DB regret = player ? currentUtil[i].second - nodeUtil.second : currentUtil[i].first -
+                                                                           nodeUtil.first;
             node.regretSum[i] += regret * (player ? p0 : p1);
-            node.regretSum[i] = max(node.regretSum[i], 0.0);
+            node.regretSum[i] = max(node.regretSum[i], (DB) 0.0);
         }
+//        }
 //    cout << infoSet << " " << nodeUtil.first << " " << nodeUtil.second << '\n';
         return nodeUtil;
     }

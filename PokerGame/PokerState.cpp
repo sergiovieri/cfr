@@ -46,10 +46,10 @@ PokerState PokerState::getNextState(uint8_t action) {
     } else {
         nextState.histories[currentRound] += 'r';
         if (player == 0) {
-            nextState.pot.first = static_cast<uint8_t>(nextState.pot.second + getRaiseAmount());
+            nextState.pot.first = nextState.pot.second + getRaiseAmount();
             nextState.playerRaises.first++;
         } else {
-            nextState.pot.second = static_cast<uint8_t>(nextState.pot.first + getRaiseAmount());
+            nextState.pot.second = nextState.pot.first + getRaiseAmount();
             nextState.playerRaises.second++;
         }
         nextState.numRaises++;
@@ -63,7 +63,7 @@ string PokerState::getInfoSet() {
            histories[0] + ';' + histories[1] + ';' + histories[2] + ';' + histories[3];
 }
 
-pair<double, double> PokerState::getTerminalValue() {
+pair<DB, DB> PokerState::getTerminalValue() {
     if (round == 4) {
         if (win == 1) return {pot.second, -pot.second};
         else if (win == -1) return {-pot.first, pot.first};
@@ -173,8 +173,8 @@ string &PokerState::getCurrentRoundHistory() {
     return histories[round];
 }
 
-uint8_t PokerState::getRaiseAmount() {
-    return 10;
-//    if (round < 2) return 20;
-//    else return 40;
+int PokerState::getRaiseAmount() {
+//    return 10;
+    if (round < 2) return 20;
+    else return 40;
 }
