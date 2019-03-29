@@ -26,10 +26,16 @@ public:
 
     void train(uint32_t iterations) {
         auto start = std::chrono::high_resolution_clock::now();
-        for (uint32_t i = 0; i < iterations; ++i) {
+        for (uint32_t i = 0; i < iterations; i += 2) {
             currentIteration = i;
             T state = T();
             pair<DB, DB> currentUtil = CFR::cfr(state, 1.0, 1.0);
+            util.first += currentUtil.first;
+            util.second += currentUtil.second;
+
+            currentIteration = i + 1;
+            state.swapPlayers();
+            currentUtil = CFR::cfr(state, 1.0, 1.0);
             util.first += currentUtil.first;
             util.second += currentUtil.second;
             if (i % 1000 == 0) {
@@ -38,7 +44,7 @@ public:
                 start = finish;
                 cout << "Iteration " << i << '\n';
                 cout << "Elapsed time: " << elapsed.count() * 1000.0 << "ms\n";
-                cout << "Average game value: " << util.first / (i + 1) << ", " << util.second / (i + 1) << '\n';
+                cout << "Average game value: " << util.first / (i + 2) << ", " << util.second / (i + 2) << '\n';
                 saveToFile("latest.txt");
             }
             if (i % 10000 == 0) saveToFile(to_string(i) + ".txt");
@@ -57,7 +63,7 @@ public:
     ~CFR() = default;
 
 private:
-    pair<DB, DB> cfr(T state, DB p0, DB p1) {
+    pair<DB, DB> cfr(const T &state, DB p0, DB p1) {
 //    cout << pState->getInfoSet() << " " << p0 << " " << p1 << '\n';
 
         int player = state.getCurrentPlayer();
@@ -75,7 +81,7 @@ private:
         vector<pair<DB, DB>> currentUtil(static_cast<unsigned long>(numActions));
         pair<DB, DB> nodeUtil = {0.0, 0.0};
 
-        for (int i = 0; i < numActions; ++i) {
+        for (uint8_t i = 0; i < numActions; ++i) {
             T nextState = state.getNextState(i);
             currentUtil[i] = player ?
                              cfr(nextState, p0, p1 * strategy[i]) :

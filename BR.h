@@ -79,7 +79,7 @@ private:
         for (DB &i : v) i /= sum;
     }
 
-    pair<DB, DB> cfr(T state, DB p0, DB p1) {
+    pair<DB, DB> cfr(const T &state, DB p0, DB p1) {
 
         int player = state.getCurrentPlayer();
 
@@ -92,7 +92,7 @@ private:
             auto strategy = oppStrategy[infoSet];
             pair<DB, DB> nodeUtil = {0.0, 0.0};
 
-            for (int i = 0; i < numActions; ++i) {
+            for (uint8_t i = 0; i < numActions; ++i) {
                 T nextState = state.getNextState(i);
                 pair<DB, DB> currentUtil = player ?
                                            cfr(nextState, p0, p1 * strategy[i]) :

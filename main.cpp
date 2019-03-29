@@ -6,7 +6,7 @@
 
 int main() {
 //    CFR<PokerState> cfr;
-//    cfr.train(10000);
+//    cfr.train(10000000);
     auto strategy = Parser::parse("/Users/sergiovieri/cfrvtllp_20000000.txt");
     auto strategy2 = Parser::parse("/Users/sergiovieri/cfrvtllp_8000000.txt");
 //    Arena<PokerState> arena(strategy, strategy2);

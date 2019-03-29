@@ -15,15 +15,15 @@ public:
 
     ~PokerState() = default;
 
-    bool isTerminal();
+    bool isTerminal() const;
 
-    pair<DB, DB> getTerminalValue();
+    pair<DB, DB> getTerminalValue() const;
 
     uint8_t getCurrentPlayer() const;
 
-    int getNumActions();
+    int getNumActions() const;
 
-    PokerState getNextState(uint8_t action);
+    PokerState getNextState(uint8_t action) const;
 
     void swapPlayers();
 
@@ -36,9 +36,9 @@ public:
     pair<uint8_t, uint8_t> playerRaises = {0, 0};
     uint8_t numRaises = 1;
 
-    string &getCurrentRoundHistory();
+    const string &getCurrentRoundHistory() const;
 
-    int getRaiseAmount();
+    int getRaiseAmount() const;
 };
 
 
