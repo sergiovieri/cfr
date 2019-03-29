@@ -1,4 +1,5 @@
 #include "PokerHandProvider.h"
+#include <cassert>
 
 ifstream PokerHandProvider::ifs = ifstream();
 

@@ -1,6 +1,7 @@
 #ifndef CFR_ABSTRACTORPREFLOP_H
 #define CFR_ABSTRACTORPREFLOP_H
 
+#include <cmath>
 #include <string>
 #include "../PokerGame/PokerState.h"
 

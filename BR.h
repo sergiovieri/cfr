@@ -110,7 +110,7 @@ private:
         Node &node = nodeMap[infoSet];
 
         auto strategy = node.getStrategy(player ? p1 : p0, currentIteration);
-        fix(strategy);
+//        fix(strategy);
         vector<pair<DB, DB>> currentUtil(static_cast<unsigned long>(numActions));
         pair<DB, DB> nodeUtil = {0.0, 0.0};
 
