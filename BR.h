@@ -87,10 +87,6 @@ public:
 
 private:
 
-    void atomicAdd(atomic<DB> &x, DB y) {
-        for (DB i = x; !x.compare_exchange_strong(i, i + y););
-    }
-
     string getStratInfoSet(T state) {
         return AbstractorPreflop::getInfoSet(state);
     }
@@ -162,10 +158,9 @@ private:
 
         uint32_t hash = getHash(state);
 
-        assert(hash < 40000);
         unordered_map<string, Node> &mp = nodeMap[hash];
 
-        unique_lock lock(nodeMapMutex[hash]);
+        unique_lock<mutex> lock(nodeMapMutex[hash]);
         if (!mp.count(infoSet)) mp[infoSet] = Node(numActions);
         Node &node = mp[infoSet];
 
