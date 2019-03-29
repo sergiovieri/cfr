@@ -3,7 +3,9 @@
 
 #include <chrono>
 #include <iostream>
+#include <mutex>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include "Abstractors/AbstractorPreflop.h"
 #include "Node.h"
@@ -16,48 +18,78 @@ class BR {
 public:
     pair<DB, DB> util;
     unordered_map<string, vector<DB>> oppStrategy;
-    unordered_map<string, Node> nodeMap;
+    unordered_map<string, Node> nodeMap[40000];
+    mutex nodeMapMutex[40000];
+    mutex stateMutex;
     uint32_t currentIteration = 0;
     uint8_t brPlayer;
+    chrono::time_point<chrono::high_resolution_clock> start;
 
     BR(const unordered_map<string, vector<DB>> &strat, uint8_t _brPlayer) {
         oppStrategy = strat;
         brPlayer = _brPlayer;
     }
 
-    void train(uint32_t iterations) {
-        auto start = chrono::high_resolution_clock::now();
-        for (uint32_t i = 0; i < iterations; i += 2) {
-            currentIteration = i;
+    void train_thread(uint32_t iterations) {
+        while (true) {
+            unique_lock<mutex> lock(stateMutex);
+            uint32_t iteration = currentIteration;
+            currentIteration += 2;
+            if (iteration >= iterations) break;
+
             T state = T();
+            lock.unlock();
+
             pair<DB, DB> currentUtil = cfr(state, 1.0, 1.0);
+
+            lock.lock();
             util.first += currentUtil.first;
             util.second += currentUtil.second;
+            lock.unlock();
 
             state.swapPlayers();
 
             currentUtil = cfr(state, 1.0, 1.0);
+
+            lock.lock();
             util.first += currentUtil.first;
             util.second += currentUtil.second;
-            if (i % 1000 == 0) {
+            lock.unlock();
+
+            iteration += 2;
+            if (iteration % 1000 == 0) {
                 auto finish = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<DB> elapsed = finish - start;
-                start = finish;
-                cout << "Iteration " << i << '\n';
-                cout << "Elapsed time: " << elapsed.count() * 1000.0 << "ms\n";
-                cout << "Average game value: " << util.first / (i + 2) << ", " << util.second / (i + 2) << '\n';
+                cout << "Iteration " << iteration << '\n';
+                cout << "Average time: " << elapsed.count() * 1000.0 / iteration << "ms\n";
+                cout << "Average game value: " << util.first / iteration << ", " << util.second / iteration << '\n';
             }
         }
-        auto finish = std::chrono::high_resolution_clock::now();
-        for (const auto &i : nodeMap) {
-            cout << "\"" << i.first << "\": " << i.second.toString() << '\n';
+    }
+
+    void train(uint32_t iterations) {
+        start = chrono::high_resolution_clock::now();
+        vector<thread> threads;
+        const int numThreads = thread::hardware_concurrency();
+        cout << "Using " << numThreads << " threads\n";
+        for (int i = 0; i < numThreads; ++i) {
+            threads.emplace_back(&BR::train_thread, this, iterations);
         }
+        for (auto &thread : threads) thread.join();
+        auto finish = std::chrono::high_resolution_clock::now();
+//        for (const auto &i : nodeMap) {
+//            cout << "\"" << i.first << "\": " << i.second.toString() << '\n';
+//        }
         cout << "Average game value: " << util.first / iterations << ", " << util.second / iterations << '\n';
         std::chrono::duration<DB> elapsed = finish - start;
         std::cout << "Elapsed time: " << elapsed.count() * 1000.0 << "ms\n";
     }
 
 private:
+
+    void atomicAdd(atomic<DB> &x, DB y) {
+        for (DB i = x; !x.compare_exchange_strong(i, i + y););
+    }
 
     string getStratInfoSet(T state) {
         return AbstractorPreflop::getInfoSet(state);
@@ -77,6 +109,29 @@ private:
             sum += i;
         }
         for (DB &i : v) i /= sum;
+    }
+
+    uint32_t getHistoryAsInt(const T &state, uint8_t round) {
+        const string &s = state.histories[round];
+        if (s.empty()) return 0;
+        uint32_t res = 0;
+        for (const auto &c : s) if (c == 'r') ++res;
+        res *= 2;
+        if (s[0] == 'c') ++res;
+        return res;
+    }
+
+    uint32_t getHash(const T &state) {
+        uint32_t res = state.round;
+        res *= 10;
+        res += getHistoryAsInt(state, 0);
+        res *= 10;
+        res += getHistoryAsInt(state, 1);
+        res *= 10;
+        res += getHistoryAsInt(state, 2);
+        res *= 10;
+        res += getHistoryAsInt(state, 3);
+        return res;
     }
 
     pair<DB, DB> cfr(const T &state, DB p0, DB p1) {
@@ -105,11 +160,17 @@ private:
 
         string infoSet = getBRInfoSet(state);
 
-        if (!nodeMap.count(infoSet)) nodeMap[infoSet] = Node(numActions);
+        uint32_t hash = getHash(state);
 
-        Node &node = nodeMap[infoSet];
+        assert(hash < 40000);
+        unordered_map<string, Node> &mp = nodeMap[hash];
+
+        unique_lock lock(nodeMapMutex[hash]);
+        if (!mp.count(infoSet)) mp[infoSet] = Node(numActions);
+        Node &node = mp[infoSet];
 
         auto strategy = node.getStrategy(player ? p1 : p0, currentIteration);
+        lock.unlock();
 //        fix(strategy);
         vector<pair<DB, DB>> currentUtil(static_cast<unsigned long>(numActions));
         pair<DB, DB> nodeUtil = {0.0, 0.0};
@@ -122,6 +183,7 @@ private:
             nodeUtil.first += strategy[i] * currentUtil[i].first;
             nodeUtil.second += strategy[i] * currentUtil[i].second;
         }
+        lock.lock();
         for (int i = 0; i < numActions; ++i) {
             DB regret = player ?
                         currentUtil[i].second - nodeUtil.second :
@@ -130,6 +192,7 @@ private:
 //            if (node.regretSum[i] < 0) node.regretSum[i] *= 0.9;
 //            node.regretSum[i] = max(node.regretSum[i], (DB) -1000.0);
         }
+        lock.unlock();
         return nodeUtil;
     }
 };

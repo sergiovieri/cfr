@@ -13,7 +13,8 @@ int main() {
 //    arena.start(1000000);
     BR<PokerState> br(strategy, 0);
     br.train(10000000);
-    br = BR<PokerState>(strategy, 1);
+    br.~BR<PokerState>();
+    new(&br) BR<PokerState>(strategy, 1);
     br.train(10000000);
     return 0;
 }
