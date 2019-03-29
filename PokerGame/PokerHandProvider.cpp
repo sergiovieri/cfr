@@ -1,7 +1,7 @@
 #include "PokerHandProvider.h"
 #include <cassert>
 
-ifstream PokerHandProvider::ifs = ifstream();
+ifstream PokerHandProvider::ifs = ifstream(PRECOM_FILE);
 
 PokerHand PokerHandProvider::getPokerHand() {
     string s;
