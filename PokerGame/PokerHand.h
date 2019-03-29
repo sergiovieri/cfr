@@ -1,7 +1,8 @@
 #ifndef CFR_POKERHAND_H
 #define CFR_POKERHAND_H
 
-#include <cstdint>
+#include <sstream>
+#include <string>
 
 using namespace std;
 
@@ -31,7 +32,20 @@ public:
     // generate random state, generate HS and HS^2 for flop, turn and river.
     PokerHand();
 
+    explicit PokerHand(const string &s);
+
+    string to_string();
+
     void swapPlayers();
+
+private:
+    int getTwoDigit(stringstream &ss);
+
+    double getDoubleSixDigit(stringstream &ss);
+
+    string to_string(uint8_t card);
+
+    void test_acc();
 };
 
 

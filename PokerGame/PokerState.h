@@ -6,6 +6,7 @@
 #include <array>
 #include <string>
 #include "PokerHand.h"
+#include "PokerHandProvider.h"
 
 using namespace std;
 
@@ -27,7 +28,7 @@ public:
 
     void swapPlayers();
 
-    PokerHand pokerHand;
+    PokerHand pokerHand = PokerHandProvider::getPokerHand();
 
     array<string, 4> histories;
     pair<int, int> pot = {10, 20};
