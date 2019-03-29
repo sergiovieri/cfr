@@ -40,6 +40,10 @@ public:
     const string &getCurrentRoundHistory() const;
 
     int getRaiseAmount() const;
+
+    uint32_t getHistoryAsInt(uint8_t cRound) const;
+
+    uint32_t getHash() const;
 };
 
 

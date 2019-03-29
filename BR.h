@@ -107,29 +107,6 @@ private:
         for (DB &i : v) i /= sum;
     }
 
-    uint32_t getHistoryAsInt(const T &state, uint8_t round) {
-        const string &s = state.histories[round];
-        if (s.empty()) return 0;
-        uint32_t res = 0;
-        for (const auto &c : s) if (c == 'r') ++res;
-        res *= 2;
-        if (s[0] == 'c') ++res;
-        return res;
-    }
-
-    uint32_t getHash(const T &state) {
-        uint32_t res = state.round;
-        res *= 10;
-        res += getHistoryAsInt(state, 0);
-        res *= 10;
-        res += getHistoryAsInt(state, 1);
-        res *= 10;
-        res += getHistoryAsInt(state, 2);
-        res *= 10;
-        res += getHistoryAsInt(state, 3);
-        return res;
-    }
-
     pair<DB, DB> cfr(const T &state, DB p0, DB p1) {
 
         int player = state.getCurrentPlayer();
@@ -156,7 +133,7 @@ private:
 
         string infoSet = getBRInfoSet(state);
 
-        uint32_t hash = getHash(state);
+        uint32_t hash = state.getHash();
 
         unordered_map<string, Node> &mp = nodeMap[hash];
 

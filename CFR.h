@@ -4,7 +4,9 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include "Abstractors/AbstractorPreflop.h"
 #include "Node.h"
@@ -13,46 +15,73 @@ template<typename T>
 class CFR {
 public:
     pair<DB, DB> util;
-    unordered_map<string, Node> nodeMap;
+    unordered_map<string, Node> nodeMap[40000];
+    mutex nodeMapMutex[40000];
+    mutex stateMutex;
     uint32_t currentIteration = 0;
+    chrono::time_point<chrono::high_resolution_clock> start;
 
     void saveToFile(const string &fileName) {
         ofstream file(fileName);
         for (const auto &i : nodeMap) {
-            file << "\"" << i.first << "\": " << i.second.toString() << ",\n";
+            for (const auto &j : i) {
+                file << "\"" << j.first << "\": " << j.second.toString() << ",\n";
+            }
         }
         file.close();
     }
 
-    void train(uint32_t iterations) {
-        auto start = std::chrono::high_resolution_clock::now();
-        for (uint32_t i = 0; i < iterations; i += 2) {
-            currentIteration = i;
+    void train_thread(uint32_t iterations) {
+        while (true) {
+            unique_lock<mutex> lock(stateMutex);
+            if (currentIteration >= iterations) break;
+            uint32_t iteration = (currentIteration += 2);
+
             T state = T();
+            lock.unlock();
+
             pair<DB, DB> currentUtil = CFR::cfr(state, 1.0, 1.0);
+
+            lock.lock();
             util.first += currentUtil.first;
             util.second += currentUtil.second;
+            lock.unlock();
 
-            currentIteration = i + 1;
             state.swapPlayers();
             currentUtil = CFR::cfr(state, 1.0, 1.0);
+
+            lock.lock();
             util.first += currentUtil.first;
             util.second += currentUtil.second;
-            if (i % 1000 == 0) {
+            if (iteration % 10000 == 0) {
                 auto finish = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<DB> elapsed = finish - start;
-                start = finish;
-                cout << "Iteration " << i << '\n';
-                cout << "Elapsed time: " << elapsed.count() * 1000.0 << "ms\n";
-                cout << "Average game value: " << util.first / (i + 2) << ", " << util.second / (i + 2) << '\n';
+                cout << "Iteration " << iteration << '\n';
+                cout << "Average time: " << elapsed.count() * 1000.0 / iteration << "ms\n";
+                cout << "Average game value: " << util.first / iteration << ", " << util.second / iteration << '\n';
                 saveToFile("latest.txt");
             }
-            if (i % 10000 == 0) saveToFile(to_string(i) + ".txt");
+            if (iteration % 100000 == 0) saveToFile(to_string(iteration) + ".txt");
+            lock.unlock();
         }
+    }
+
+    void train(uint32_t iterations) {
+        start = std::chrono::high_resolution_clock::now();
+
+        vector<thread> threads;
+        const int numThreads = thread::hardware_concurrency();
+        cout << "Using " << numThreads << " threads\n";
+        for (int i = 0; i < numThreads; ++i) {
+            threads.emplace_back(&CFR::train_thread, this, iterations);
+        }
+        for (auto &thread : threads) thread.join();
         auto finish = std::chrono::high_resolution_clock::now();
         cout << "Average game value: " << util.first / iterations << ", " << util.second / iterations << '\n';
         for (const auto &i : nodeMap) {
-            cout << "\"" << i.first << "\": " << i.second.toString() << '\n';
+            for (const auto &j : i) {
+                cout << "\"" << j.first << "\": " << j.second.toString() << '\n';
+            }
         }
         std::chrono::duration<DB> elapsed = finish - start;
         std::cout << "Elapsed time: " << elapsed.count() * 1000.0 << "ms\n";
@@ -73,11 +102,17 @@ private:
         int numActions = state.getNumActions();
         string infoSet = AbstractorPreflop::getInfoSet(state);
 
-        if (!CFR::nodeMap.count(infoSet)) CFR::nodeMap[infoSet] = Node(numActions);
+        uint32_t hash = state.getHash();
 
-        Node &node = CFR::nodeMap[infoSet];
+        unordered_map<string, Node> &mp = nodeMap[hash];
+
+        unique_lock<mutex> lock(nodeMapMutex[hash]);
+        if (!mp.count(infoSet)) mp[infoSet] = Node(numActions);
+        Node &node = mp[infoSet];
 
         auto strategy = node.getStrategy(player ? p1 : p0, currentIteration);
+        lock.unlock();
+
         vector<pair<DB, DB>> currentUtil(static_cast<unsigned long>(numActions));
         pair<DB, DB> nodeUtil = {0.0, 0.0};
 
@@ -89,17 +124,13 @@ private:
             nodeUtil.first += strategy[i] * currentUtil[i].first;
             nodeUtil.second += strategy[i] * currentUtil[i].second;
         }
-
-//        if (currentIteration % 2 == player) {
+        lock.lock();
         for (int i = 0; i < numActions; ++i) {
             DB regret = player ? currentUtil[i].second - nodeUtil.second : currentUtil[i].first -
                                                                            nodeUtil.first;
             node.regretSum[i] += regret * (player ? p0 : p1);
-//            if (node.regretSum[i] < 0) node.regretSum[i] /= 2.0;
-//            node.regretSum[i] = max(node.regretSum[i], (DB) 0.0);
         }
-//        }
-//    cout << infoSet << " " << nodeUtil.first << " " << nodeUtil.second << '\n';
+        lock.unlock();
         return nodeUtil;
     }
 };

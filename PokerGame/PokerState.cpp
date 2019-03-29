@@ -70,3 +70,26 @@ int PokerState::getRaiseAmount() const {
 void PokerState::swapPlayers() {
     pokerHand.swapPlayers();
 }
+
+uint32_t PokerState::getHistoryAsInt(uint8_t cRound) const {
+    const string &s = histories[cRound];
+    if (s.empty()) return 0;
+    uint32_t res = 0;
+    for (const auto &c : s) if (c == 'r') ++res;
+    res *= 2;
+    if (s[0] == 'c') ++res;
+    return res;
+}
+
+uint32_t PokerState::getHash() const {
+    uint32_t res = round;
+    res *= 10;
+    res += getHistoryAsInt(0);
+    res *= 10;
+    res += getHistoryAsInt(1);
+    res *= 10;
+    res += getHistoryAsInt(2);
+    res *= 10;
+    res += getHistoryAsInt(3);
+    return res;
+}
