@@ -1,12 +1,13 @@
 #ifndef CFR_CFR_H
 #define CFR_CFR_H
 
-#include <unordered_map>
-#include <string>
-#include <iostream>
 #include <chrono>
-#include "Node.h"
 #include <fstream>
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include "Abstractors/AbstractorPreflop.h"
+#include "Node.h"
 
 template<typename T>
 class CFR {
@@ -64,7 +65,7 @@ private:
         if (state.isTerminal()) return state.getTerminalValue();
 
         int numActions = state.getNumActions();
-        string infoSet = state.getInfoSet();
+        string infoSet = AbstractorPreflop::getInfoSet(state);
 
         if (!CFR::nodeMap.count(infoSet)) CFR::nodeMap[infoSet] = Node(numActions);
 
