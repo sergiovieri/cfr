@@ -8,6 +8,7 @@
 #include <thread>
 #include <unordered_map>
 #include "Abstractors/AbstractorPreflop.h"
+#include "Abstractors/AbstractorEHS2.h"
 #include "Node.h"
 #include "omp/CardRange.h"
 
@@ -92,7 +93,7 @@ private:
     }
 
     string getBRInfoSet(T state) {
-        return AbstractorPreflop::getInfoSet(state);
+        return AbstractorEHS2::getInfoSet(state);
     }
 
     void fix(vector<DB> &v) {
@@ -139,9 +140,7 @@ private:
 
         unique_lock<mutex> lock(nodeMapMutex[hash]);
         if (!mp.count(infoSet)) mp[infoSet] = Node(numActions);
-        Node &node = mp[infoSet];
-
-        auto strategy = node.getStrategy(player ? p1 : p0, currentIteration);
+        auto strategy = mp[infoSet].getStrategy(player ? p1 : p0, currentIteration);
         lock.unlock();
 //        fix(strategy);
         vector<pair<DB, DB>> currentUtil(static_cast<unsigned long>(numActions));
@@ -156,6 +155,7 @@ private:
             nodeUtil.second += strategy[i] * currentUtil[i].second;
         }
         lock.lock();
+        Node &node = mp[infoSet];
         for (int i = 0; i < numActions; ++i) {
             DB regret = player ?
                         currentUtil[i].second - nodeUtil.second :
