@@ -6,16 +6,16 @@ Node::Node(int numActions) : numActions(numActions) {
     strategySum.resize(static_cast<unsigned long>(numActions));
 }
 
-vector<double> Node::getStrategy(double realizationWeight) {
+vector<DB> Node::getStrategy(DB realizationWeight, uint32_t iteration) {
     for (int i = 0; i < numActions; ++i) {
-        strategy[i] = max(regretSum[i], 0.0);
+        strategy[i] = max(regretSum[i], (DB) 0.0);
     }
-    double normalizingSum = 0.0;
+    DB normalizingSum = 0.0;
     for (auto const &i : strategy) normalizingSum += i;
     if (normalizingSum > 0) {
         for (auto &i : strategy) i /= normalizingSum;
     } else {
-        strategy = vector<double>(static_cast<unsigned long>(numActions), 1.0 / numActions);
+        strategy = vector<DB>(static_cast<unsigned long>(numActions), 1.0 / numActions);
     }
 
     for (int i = 0; i < numActions; ++i) {
@@ -24,14 +24,14 @@ vector<double> Node::getStrategy(double realizationWeight) {
     return strategy;
 }
 
-vector<double> Node::getAvgStrategy() const {
-    vector<double> avgStrategy = regretSum;
-    double normalizingSum = 0.0;
+vector<DB> Node::getAvgStrategy() const {
+    vector<DB> avgStrategy = strategySum;
+    DB normalizingSum = 0.0;
     for (auto const &i : avgStrategy) normalizingSum += i;
     if (normalizingSum > 0) {
         for (auto &i : avgStrategy) i /= normalizingSum;
     } else {
-        avgStrategy = vector<double>(static_cast<unsigned long>(numActions), 1.0 / numActions);
+        avgStrategy = vector<DB>(static_cast<unsigned long>(numActions), 1.0 / numActions);
     }
     return avgStrategy;
 }

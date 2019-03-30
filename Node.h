@@ -3,6 +3,8 @@
 #ifndef CFR_NODE_H
 #define CFR_NODE_H
 
+#define DB long double
+
 #include <string>
 #include <vector>
 #include <cmath>
@@ -12,15 +14,15 @@ using namespace std;
 class Node {
 public:
     int numActions = 0;
-    vector<double> regretSum;
-    vector<double> strategy;
-    vector<double> strategySum;
+    vector<DB> regretSum;
+    vector<DB> strategy;
+    vector<DB> strategySum;
 
     explicit Node(int numActions);
 
-    vector<double> getStrategy(double realizationWeight);
+    vector<DB> getStrategy(DB realizationWeight, uint32_t iteration);
 
-    vector<double> getAvgStrategy() const;
+    vector<DB> getAvgStrategy() const;
 
     string toString() const;
 
