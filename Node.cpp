@@ -19,7 +19,7 @@ vector<DB> Node::getStrategy(DB realizationWeight, uint32_t iteration) {
     }
 
     for (int i = 0; i < numActions; ++i) {
-        strategySum[i] += iteration * realizationWeight * strategy[i];
+        strategySum[i] += realizationWeight * strategy[i];
     }
     return strategy;
 }

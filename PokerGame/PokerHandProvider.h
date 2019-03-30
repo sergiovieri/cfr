@@ -1,7 +1,7 @@
 #ifndef CFR_POKERHANDPROVIDER_H
 #define CFR_POKERHANDPROVIDER_H
 
-#define PRECOM_FILE  "hs-precom-head.txt"
+#define PRECOM_FILE  "hs-precom.txt"
 
 #include <fstream>
 #include "PokerHand.h"
