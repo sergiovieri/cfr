@@ -33,3 +33,10 @@
 
 .idea/
 cmake-build-debug/
+.DS_Store
+.vscode/
+
+# precompute files
+out.txt
+tmp.txt
+out2.txt
