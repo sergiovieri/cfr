@@ -32,9 +32,6 @@ double EHSCalc::getHS(uint64_t ourCards, uint64_t commCards) {
     
     auto s1 = he.evaluate(ourHand);
 
-    omp::Hand tempHand = getHand((1 << 7) - 1);
-    cout << tempHand.count() << " " << he.evaluate(tempHand) << '\n';
-
     int wins = 0, total = 0;
     for (uint8_t i = 0; i < 52; ++i) {
         if (usedCards & (1LU << i)) continue;
@@ -47,7 +44,6 @@ double EHSCalc::getHS(uint64_t ourCards, uint64_t commCards) {
             ++total;
         }
     }
-    cout << "HS " << ourCards << " " << commCards << ": " << (double) wins / total / 2 << '\n';
     return (double) wins / total / 2;
 }
 

@@ -10,7 +10,7 @@ EHSmontecarlo.o: EHSmontecarlo.h
 
 EHSCalc/EHSCalc.o: %.o: %.cpp
 	$(CXX) -c $^ -o $@ $(CXXFLAGS)
-	
+
 montecarlo: montecarlo.cpp $(omp)
 	$(CXX) montecarlo.cpp $(omp) -o montecarlo $(CXXFLAGS)
 		
@@ -22,6 +22,9 @@ generate: generate.cpp EHSmontecarlo.o
 	
 coba: coba.cpp EHSCalc/EHSCalc.o $(omp)
 	$(CXX) coba.cpp EHSCalc/EHSCalc.o $(omp) -o coba $(CXXFLAGS)
-	
+
+bucketPrecom: bucketPrecom.cpp EHSCalc/EHSCalc.o $(omp)
+	$(CXX) bucketPrecom.cpp EHSCalc/EHSCalc.o $(omp) -o bucketPrecom $(CXXFLAGS)
+
 clean: 
 	rm EHSCalc/*.o omp/*.o *.o verify generate coba montecarlo
