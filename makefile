@@ -1,4 +1,4 @@
-CXX = g++-8
+CXX = G++
 CXXFLAGS = -std=c++11 -Ofast -pthread
 omp = omp/CardRange.o omp/CombinedRange.o omp/EquityCalculator.o omp/HandEvaluator.o
 
@@ -23,8 +23,11 @@ generate: generate.cpp EHSmontecarlo.o
 coba: coba.cpp EHSCalc/EHSCalc.o $(omp)
 	$(CXX) coba.cpp EHSCalc/EHSCalc.o $(omp) -o coba $(CXXFLAGS)
 
+runtimeBucket: runtimeBucket.cpp EHSCalc/EHSCalc.o $(omp)
+	$(CXX) runtimeBucket.cpp EHSCalc/EHSCalc.o $(omp) -o runtimeBucket $(CXXFLAGS)
+
 bucketPrecom: bucketPrecom.cpp EHSCalc/EHSCalc.o $(omp)
 	$(CXX) bucketPrecom.cpp EHSCalc/EHSCalc.o $(omp) -o bucketPrecom $(CXXFLAGS)
 
 clean: 
-	rm EHSCalc/*.o omp/*.o *.o verify generate coba montecarlo
+	rm EHSCalc/*.o omp/*.o *.o verify generate coba montecarlo computeBucket
