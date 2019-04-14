@@ -13,6 +13,7 @@ class computeBucket:
             # if make_process.wait() != 0:
             #     assert(False)
             
+            os.system("chmod 777 Group32runtimeBucket")
             return Popen('./Group32runtimeBucket', stdin=PIPE, stdout=PIPE, stderr=PIPE,
                 universal_newlines=True, bufsize=1)
 
