@@ -4,8 +4,8 @@ import os
 # return the bucket of flop, turn river
 class computeBucket:
     def __init__(self):
-        with open('Group32runtimeFlopBucket.txt', 'r') as f:
-            self.flopBucket = eval(f.readline())
+        with open('Group32runtimeFlopBucketBCK.txt', 'r') as f:
+            self.flopBucket = eval("".join(f.readlines()))
         
         def buildCPP():
             # make_process = Popen("make runtimeBucket")
