@@ -23,11 +23,11 @@ generate: generate.cpp EHSmontecarlo.o
 coba: coba.cpp EHSCalc/EHSCalc.o $(omp)
 	$(CXX) coba.cpp EHSCalc/EHSCalc.o $(omp) -o coba $(CXXFLAGS)
 
-runtimeBucket: runtimeBucket.cpp EHSCalc/EHSCalc.o $(omp)
-	$(CXX) runtimeBucket.cpp EHSCalc/EHSCalc.o $(omp) -o runtimeBucket $(CXXFLAGS)
+Group32runtimeBucket: Group32runtimeBucket.cpp EHSCalc/EHSCalc.o $(omp)
+	$(CXX) Group32runtimeBucket.cpp EHSCalc/EHSCalc.o $(omp) -o Group32runtimeBucket $(CXXFLAGS)
 
 bucketPrecom: bucketPrecom.cpp EHSCalc/EHSCalc.o $(omp)
 	$(CXX) bucketPrecom.cpp EHSCalc/EHSCalc.o $(omp) -o bucketPrecom $(CXXFLAGS)
 
 clean: 
-	rm EHSCalc/*.o omp/*.o *.o verify generate coba montecarlo computeBucket
+	rm EHSCalc/*.o omp/*.o *.o verify generate coba montecarlo Group32runtimeBucket

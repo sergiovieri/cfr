@@ -5,15 +5,15 @@ class computeBucket:
     def __init__(self):
         self.flopBucket = {}
         
-        with open('runtimeFlopBucket.txt', 'r') as f:
+        with open('Group32runtimeFlopBucket.txt', 'r') as f:
             eval("".join(f.readlines))
         
         def buildCPP():
-            make_process = Popen("make runtimeBucket")
-            if make_process.wait() != 0:
-                assert(False)
+            # make_process = Popen("make runtimeBucket")
+            # if make_process.wait() != 0:
+            #     assert(False)
             
-            return Popen('./runtimeBucket', stdin=PIPE, stdout=PIPE, stderr=PIPE,
+            return Popen('./Group32runtimeBucket', stdin=PIPE, stdout=PIPE, stderr=PIPE,
                 universal_newlines=True, bufsize=1)
 
         self.process = buildCPP()
