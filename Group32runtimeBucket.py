@@ -5,7 +5,7 @@ import os
 class computeBucket:
     def __init__(self):
         with open('Group32runtimeFlopBucket.txt', 'r') as f:
-            self.flopBucket = eval("".join(f.readlines))
+            self.flopBucket = eval(f.readline())
         
         def buildCPP():
             # make_process = Popen("make runtimeBucket")
