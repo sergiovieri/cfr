@@ -72,6 +72,7 @@ int main() {
             bucketId = getRiverInfo(HS, HS2);
         
         printf("%d\n", bucketId);
+	fflush(stdout);
     }
     
     return 0;

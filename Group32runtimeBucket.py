@@ -63,9 +63,10 @@ class computeBucket:
         return decode(self.flopBucket[key])
     
     def cppComputeBucket(self, hand, comm):
-        inp = "%d %d\n" % hand, comm
+        inp = "%d %d\n" % (hand, comm)
         self.process.stdin.write(inp)
-        return int(self.process.stdout.readline())
+        self.process.stdin.flush()
+	return int(self.process.stdout.readline())
         
     # hand and comm are integer masks.
     def getBucket(self, hand, comm):

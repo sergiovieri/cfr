@@ -1,4 +1,4 @@
-CXX = G++
+CXX = g++
 CXXFLAGS = -std=c++11 -Ofast -pthread
 omp = omp/CardRange.o omp/CombinedRange.o omp/EquityCalculator.o omp/HandEvaluator.o
 
