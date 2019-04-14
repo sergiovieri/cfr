@@ -29,7 +29,30 @@ class computeBucket:
         # char -> int
         def decode(c):
             return ord(c) - ord('0')
+        
+        def normalize(hand, comm):
+            hand = list(map(lambda x: (x // 4, x % 4), hand))
+            comm = list(map(lambda x: (x // 4, x % 4), comm))
+            def rankCard(a):
+                return a[0]
+                
+            hand = sorted(hand, key=rankCard)
+            comm = sorted(comm, key=rankCard)
             
+            arr = hand + comm
+            suitmap = {}
+            tot = 0
+            for i in range(len(arr)):
+                r, s = arr[i]
+                if s not in suitmap:
+                    suitmap[s] = tot
+                    tot+= 1
+                    
+                arr[i] = r * 4 + suitmap[s]
+                
+            return arr[:2], arr[2:]
+        
+        hand, comm = normalize(hand, comm)    
         key = ''    
         for i in hand:
             key += encode(i)
@@ -41,10 +64,10 @@ class computeBucket:
     
     def cppComputeBucket(self, hand, comm):
         inp = "%d %d\n" % hand, comm
-        self.process.stdout.write(inp)
+        self.process.stdin.write(inp)
         return int(self.process.stdout.readline())
         
-    
+    # hand and comm are integer masks.
     def getBucket(self, hand, comm):
         hand_arr = [i for i in range(52) if (1 << i) & hand]
         comm_arr = [i for i in range(52) if (1 << i) & comm]
