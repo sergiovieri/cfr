@@ -1,4 +1,5 @@
 from subprocess import PIPE, Popen
+import os
 
 # return the bucket of flop, turn river
 class computeBucket:
