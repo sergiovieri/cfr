@@ -59,9 +59,8 @@ int getRiverInfo(double ehs, double ehs2) {
 }
 
 int main() {
-    while (1) { // only works for turn and river
-        ll hand, comm;
-        scanf("%lld %lld", &hand, &comm);
+    ll hand, comm;
+    while (scanf("%lld %lld", &hand, &comm) != EOF) { // only works for turn and river
         
         double HS, HS2;
         tie(HS, HS2) = EHSCalc::getWinPercentageFull(hand, comm);
